@@ -1,0 +1,17 @@
+.idea/
+__pycache__/
+.vscode/
+.mypy_cache/
+node_modules/
+coverage/
+sqvenv/
+# credentials
+# Local .terraform directories
+**/.terraform/*
+# .tfstate files
+*.tfstate
+*.tfstate.*
+*.DS_Store
+firebase.dev.json
+firebase.json
+gcs.json
