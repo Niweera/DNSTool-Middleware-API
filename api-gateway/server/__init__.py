@@ -9,18 +9,18 @@ from swagger import init_swagger
 from config import Config
 
 
-app = Flask(__name__, static_folder="../static", static_url_path="/static")
+app: Flask = Flask(__name__, static_folder="../static", static_url_path="/static")
 app.config.from_object(Config)
 
 
 if __name__ != "__main__":
     init_logs(app)
 
-cors = CORS(
+cors: CORS = CORS(
     app,
     resources={r"/*": {"origins": ["http://localhost:3000"]}},
 )
-api = Api(app, errors=errors)
+api: Api = Api(app, errors=errors)
 
 
 initialize_cache(app)

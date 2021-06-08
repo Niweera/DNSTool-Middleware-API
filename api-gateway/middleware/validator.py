@@ -1,28 +1,31 @@
+from typing import Dict, Any, Optional
 from flask import request, Response
 import json
 from models import LoginSchema
 from functools import wraps
 from middleware.error_handling import write_log
 
-validator_schemas = {"login": LoginSchema}
+validator_schemas: Dict[str, Any] = {"login": LoginSchema}
 
 
-def get_validation_schema(schema_name):
+def get_validation_schema(schema_name: str) -> Optional[Any, bool]:
     if schema_name in validator_schemas:
         return validator_schemas[schema_name]()
     else:
         return False
 
 
-def validator(func):
+def validator(func: Any) -> Any:
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        body = request.get_json()
+    def wrapper(*args: Any, **kwargs: Dict[str, str]) -> Optional[Response]:
+        body: Optional[Any] = request.get_json()
         if body:
             if hasattr(func.__self__, "model"):
-                validation_schema = get_validation_schema(func.__self__.model)
+                validation_schema: Optional[str, bool] = get_validation_schema(
+                    func.__self__.model
+                )
                 if validation_schema:
-                    errors = validation_schema.validate(body)
+                    errors: Optional[str, None] = validation_schema.validate(body)
                     if errors:
                         return send_error(errors, errors)
                 else:
@@ -39,7 +42,7 @@ def validator(func):
     return wrapper
 
 
-def send_error(error, message, code=None):
+def send_error(error: str, message: str, code: Optional[int] = None) -> Response:
     write_log("error", error)
     return Response(
         response=json.dumps({"message": message}),
