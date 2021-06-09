@@ -18,7 +18,7 @@ if __name__ != "__main__":
 
 cors: CORS = CORS(
     app,
-    resources={r"/*": {"origins": ["http://localhost:3000"]}},
+    resources={r"/*": {"origins": ["*"]}},
 )
 api: Api = Api(app, errors=errors)
 

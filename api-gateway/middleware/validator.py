@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union
 from flask import request, Response
 import json
 from models import LoginSchema
@@ -8,7 +8,11 @@ from middleware.error_handling import write_log
 validator_schemas: Dict[str, Any] = {"login": LoginSchema}
 
 
-def get_validation_schema(schema_name: str) -> Optional[Any, bool]:
+def get_validation_schema(schema_name: str) -> Union[Any, bool]:
+    """
+    :param str schema_name: Schema name
+    :return: schema object
+    """
     if schema_name in validator_schemas:
         return validator_schemas[schema_name]()
     else:
@@ -16,6 +20,11 @@ def get_validation_schema(schema_name: str) -> Optional[Any, bool]:
 
 
 def validator(func: Any) -> Any:
+    """
+    :param callable func: Inner function
+    :return: callable
+    """
+
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Dict[str, str]) -> Optional[Response]:
         body: Optional[Any] = request.get_json()
@@ -43,6 +52,12 @@ def validator(func: Any) -> Any:
 
 
 def send_error(error: str, message: str, code: Optional[int] = None) -> Response:
+    """
+    :param str error: error message to be logged
+    :param str message: error message to be returned to the client
+    :param int code: http error code
+    :return: flask.Response
+    """
     write_log("error", error)
     return Response(
         response=json.dumps({"message": message}),

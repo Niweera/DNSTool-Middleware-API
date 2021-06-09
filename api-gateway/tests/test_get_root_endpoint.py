@@ -5,7 +5,7 @@ from werkzeug.test import TestResponse
 from server import app
 
 
-class RootEndPointController(TestCase):
+class TestRootEndPointController(TestCase):
     def setUp(self) -> None:
         self.app: FlaskClient = app.test_client()
 

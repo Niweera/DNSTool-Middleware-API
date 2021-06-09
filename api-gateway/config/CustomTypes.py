@@ -1,3 +1,3 @@
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Any
 
-ResourceType = Tuple[Dict[str, str], int]
+ResourceType = Tuple[Dict[str, Any], int]
