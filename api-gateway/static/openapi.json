@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.3",
   "info": {
     "version": "1.00",
     "title": "API-Gateway Documentation",
@@ -12,7 +12,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9000/",
+      "url": "http://localhost:9999/",
       "description": "Local Development Server"
     }
   ],
@@ -32,6 +32,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RootEndPointResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/{query}": {
+      "get": {
+        "tags": [
+          "zones-query-endpoint"
+        ],
+        "description": "Get a list of zones according to the user provided query",
+        "operationId": "getZonesList",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "query",
+            "schema": {
+              "type": "string"
+
+            },
+            "required": true,
+            "description": "String to be searched"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of the zones query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZonesQueryResponse"
                 }
               }
             }
@@ -68,6 +111,17 @@
         },
         "example": {
           "message": "Root Endpoint accessed"
+        }
+      },
+      "ZonesQueryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array"
+          }
+        },
+        "example": {
+          "data": [".com",".company"]
         }
       },
       "InternalServerError": {

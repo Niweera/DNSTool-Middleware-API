@@ -1,0 +1,40 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>List Zones</title>
+  </head>
+  <body>
+    <label for="zone-input">Zone: </label
+    ><input type="text" id="zone-input" onkeyup="myFunction()" />
+
+    <br />
+    <br />
+    Zones:
+    <ol id="zoneList"></ol>
+
+    <script>
+      async function myFunction() {
+        let x = document.getElementById("zone-input");
+        if (x.value === "") {
+          return (document.getElementById("zoneList").innerHTML = "");
+        }
+        let query = x.value;
+        const response = await fetch("http://localhost:9999/zones/" + query);
+        const res = await response.json();
+        const zones = res?.data;
+        document.getElementById("zoneList").innerHTML = "";
+        zones.forEach((zone) => {
+          let liElement = document.createElement("LI");
+          let textNode = document.createTextNode(zone);
+          liElement.appendChild(textNode);
+          document.getElementById("zoneList").appendChild(liElement);
+        });
+      }
+    </script>
+  </body>
+</html>

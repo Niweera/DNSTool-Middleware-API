@@ -1,4 +1,5 @@
 from os.path import abspath, join, dirname, realpath
+from typing import Any, Dict, Optional
 import firebase_admin
 from firebase_admin import credentials, auth
 from os import getenv
@@ -7,7 +8,7 @@ from middleware.error_handling import write_log, UnauthorizedError
 
 load_dotenv()
 
-cred = credentials.Certificate(
+cred: Any = credentials.Certificate(
     abspath(join(dirname(realpath(__file__)), getenv("FIREBASE_JSON")))
 )
 firebase_admin.initialize_app(cred, {"databaseURL": getenv("FIREBASE_DATABASE_URL")})
@@ -15,7 +16,7 @@ firebase_admin.initialize_app(cred, {"databaseURL": getenv("FIREBASE_DATABASE_UR
 
 class FirebaseAuth:
     @staticmethod
-    def check_id_token(id_token):
+    def check_id_token(id_token: str) -> Optional[Dict[str, str], None]:
         try:
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token

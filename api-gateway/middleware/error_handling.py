@@ -21,7 +21,7 @@ errors = {
 }
 
 
-def write_log(log_level, message):
+def write_log(log_level: str, message: str) -> None:
     if log_level == "error":
         app.logger.error(message)
     elif log_level == "warning":
