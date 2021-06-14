@@ -1,6 +1,6 @@
 import json
 from os.path import abspath, join, dirname, realpath
-from typing import List, Union
+from typing import List, Union, Dict, Any
 from flask import Response
 from config.CustomTypes import ResourceType
 from middleware.validator import send_error
@@ -27,3 +27,7 @@ class Service:
                 entry for entry in zones if re.search(lower_query, entry)
             ]
             return dict(data=result), 200
+
+    @staticmethod
+    def register_user(request_body: Dict[str, Any]) -> Union[ResourceType, Response]:
+        return dict(**request_body), 200
