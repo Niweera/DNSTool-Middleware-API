@@ -4,9 +4,10 @@ import firebase_admin
 from firebase_admin import credentials, auth, db
 from os import getenv
 from dotenv import load_dotenv
-from firebase_admin.auth import UserRecord
+from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
 from middleware.error_handling import write_log, UnauthorizedError
+
 
 load_dotenv()
 
@@ -83,6 +84,8 @@ class FirebaseAuth:
             self.firebase_db.create_user_account(
                 user_record.uid, full_name, email, organization, profession, reason
             )
+        except EmailAlreadyExistsError:
+            raise EmailAlreadyExistsError(None, None, None)
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError

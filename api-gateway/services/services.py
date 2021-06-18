@@ -1,6 +1,7 @@
 import json
 from os.path import abspath, join, dirname, realpath
 from typing import List, Union, Dict, Any
+from firebase_admin.auth import EmailAlreadyExistsError
 from flask import Response
 from config.CustomTypes import ResourceType
 from database import FirebaseAuth, FirebaseDB
@@ -53,6 +54,12 @@ class Service:
                 full_name, email, organization, profession, reason, password
             )
             return dict(message="User account registered successfully"), 200
+        except EmailAlreadyExistsError:
+            return send_error(
+                "Email already exists",
+                f"The user with the provided email already exists",
+                400,
+            )
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError
