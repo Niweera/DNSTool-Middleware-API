@@ -22,7 +22,7 @@ class Service:
     @staticmethod
     def get_zone(query: str) -> Union[ResourceType, Response]:
         try:
-            zone_file = abspath(
+            zone_file: str = abspath(
                 join(dirname(dirname(realpath(__file__))), "static", "zones.json")
             )
             with open(file=zone_file, mode="r", encoding="utf-8") as zones_json:
@@ -43,12 +43,12 @@ class Service:
         self, request_body: Dict[str, Any]
     ) -> Union[ResourceType, Response]:
         try:
-            full_name = request_body.get("full_name")
-            email = request_body.get("email")
-            organization = request_body.get("organization")
-            profession = request_body.get("profession")
-            reason = request_body.get("reason")
-            password = request_body.get("password")
+            full_name: str = request_body.get("full_name")
+            email: str = request_body.get("email")
+            organization: str = request_body.get("organization")
+            profession: str = request_body.get("profession")
+            reason: str = request_body.get("reason")
+            password: str = request_body.get("password")
 
             self.firebase_auth.register_user(
                 full_name, email, organization, profession, reason, password
@@ -60,6 +60,17 @@ class Service:
                 f"The user with the provided email already exists",
                 400,
             )
+        except Exception as e:
+            write_log("error", e)
+            raise UnauthorizedError
+
+    @staticmethod
+    def check_email_domain(
+        request_body: Dict[str, Any]
+    ) -> Union[ResourceType, Response]:
+        try:
+            email: str = request_body.get("email")
+            return dict(message=f"[{email}] is valid and accepted."), 200
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError

@@ -20,7 +20,7 @@
     "/": {
       "get": {
         "tags": [
-          "root-endpoint"
+          "Root Endpoint"
         ],
         "description": "Root endpoint",
         "operationId": "rootEndPoint",
@@ -52,7 +52,7 @@
     "/zones/{query}": {
       "get": {
         "tags": [
-          "zones-query-endpoint"
+          "Zones Query Endpoint"
         ],
         "description": "Get a list of zones according to the user provided query",
         "operationId": "getZonesList",
@@ -62,7 +62,6 @@
             "name": "query",
             "schema": {
               "type": "string"
-
             },
             "required": true,
             "description": "String to be searched"
@@ -75,6 +74,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ZonesQueryResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [
+          "Registration Endpoint"
+        ],
+        "description": "Register a user",
+        "operationId": "registerUser",
+        "parameters": [
+        ],
+        "requestBody": {
+          "description": "Registration user details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response of the registration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email already exists error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailAlreadyExistsError"
                 }
               }
             }
@@ -121,7 +174,52 @@
           }
         },
         "example": {
-          "data": [".com",".company"]
+          "data": [
+            ".com",
+            ".company"
+          ]
+        }
+      },
+      "RegistrationRequest": {
+        "type": "object",
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "profession": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "full_name": "Nipuna Weerasekara",
+          "email": "w.nipuna@gmail.com",
+          "organization": "Niweera.inc",
+          "profession": "Web Developer",
+          "reason": "For education purposes",
+          "password": "Super-secret-password"
+        }
+      },
+      "RegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "User account registered successfully"
         }
       },
       "InternalServerError": {
@@ -133,6 +231,17 @@
         },
         "example": {
           "message": "error message"
+        }
+      },
+      "EmailAlreadyExistsError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "The user with the provided email already exists"
         }
       },
       "UnauthorizedError": {

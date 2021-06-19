@@ -27,3 +27,11 @@ class RegistrationController(Resource):
 
     def post(self, request_body: Dict[str, Any]) -> ResourceType:
         return service.register_user(request_body)
+
+
+class EmailDomainCheckController(Resource):
+    method_decorators: Dict[str, List[Callable]] = dict(post=[validator])
+    model: str = "OrganizationEmail"
+
+    def post(self, request_body: Dict[str, Any]) -> ResourceType:
+        return service.check_email_domain(request_body)
