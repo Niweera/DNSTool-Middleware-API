@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Dict, Optional, Callable, Any
+from typing import Dict, Optional, Callable, Any, Union
 from config.CustomTypes import ResourceType
 from database import FirebaseAuth
 from middleware.validator import send_error
@@ -8,18 +8,16 @@ from flask import request, Response
 firebase_auth: FirebaseAuth = FirebaseAuth()
 
 
-def authenticate(fn: Callable[..., ResourceType]):
-    @wraps(fn)
-    def wrapper(
-        *args: Any, **kwargs: Dict[str, str]
-    ) -> Optional[Callable[..., ResourceType], Response]:
+def authenticate(func: Callable[..., ResourceType]):
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Dict[str, str]) -> Union[ResourceType, Response]:
         token: str = request.headers.get("Authorization")
         if token:
-            decoded_token: Optional[
-                Dict[str, str], None
-            ] = firebase_auth.check_id_token(token.split("Bearer ")[1])
-            if bool(decoded_token):
-                return fn(*args, **kwargs)
+            uid: Optional[Dict[str, str], None] = firebase_auth.check_id_token(
+                token.split("Bearer ")[1]
+            )
+            if bool(uid):
+                return func(*args, uid, **kwargs)
             else:
                 return send_error(
                     "Invalid Firebase authentication token", "Unauthorized", 401

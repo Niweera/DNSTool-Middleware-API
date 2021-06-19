@@ -1,3 +1,4 @@
+from typing import Union
 from werkzeug.exceptions import HTTPException
 from flask import current_app as app
 
@@ -21,7 +22,7 @@ errors = {
 }
 
 
-def write_log(log_level: str, message: str) -> None:
+def write_log(log_level: str, message: Union[str, Exception]) -> None:
     if log_level == "error":
         app.logger.error(message)
     elif log_level == "warning":
