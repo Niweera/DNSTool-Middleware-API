@@ -144,6 +144,60 @@
           }
         }
       }
+    },
+    "/check-email": {
+      "post": {
+        "tags": [
+          "Check Email Endpoint"
+        ],
+        "description": "Check if the given email is a valid organization email",
+        "operationId": "checkEmail",
+        "parameters": [
+        ],
+        "requestBody": {
+          "description": "Email address",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response of the check email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckEmailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid organization email validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -211,6 +265,17 @@
           "password": "Super-secret-password"
         }
       },
+      "CheckEmailRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "email": "w.nipuna@gmail.com"
+        }
+      },
       "RegistrationResponse": {
         "type": "object",
         "properties": {
@@ -220,6 +285,17 @@
         },
         "example": {
           "message": "User account registered successfully"
+        }
+      },
+      "CheckEmailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "[{email}] is valid and accepted."
         }
       },
       "InternalServerError": {
@@ -242,6 +318,21 @@
         },
         "example": {
           "message": "The user with the provided email already exists"
+        }
+      },
+      "EmailValidationError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "object"
+          }
+        },
+        "example": {
+          "message": {
+            "_schema": [
+              "[{email}] email domain is not an accepted organization domain."
+            ]
+          }
         }
       },
       "UnauthorizedError": {
