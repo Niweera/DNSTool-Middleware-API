@@ -13,8 +13,38 @@ class TestEmailDomainCheckController(TestCase):
         response: TestResponse = self.app.post(
             "/check-email",
             json=dict(
-                email="w.nipuna@ucsc.cmb.ac.lk",
+                email="w.nipuna@ciu.ac.ug",
             ),
         )
         result: Dict[str, Any] = response.json
-        print(result)
+        code: int = response.status_code
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result.get("message"), str)
+        self.assertEqual(code, 200)
+
+    def test_check_email_sub_domain(self) -> None:
+        response: TestResponse = self.app.post(
+            "/check-email",
+            json=dict(
+                email="w.nipuna@stu.ciu.ac.ug",
+            ),
+        )
+        result: Dict[str, Any] = response.json
+        code: int = response.status_code
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result.get("message"), str)
+        self.assertEqual(code, 200)
+
+    def test_invalid_check_email_domain(self) -> None:
+        response: TestResponse = self.app.post(
+            "/check-email",
+            json=dict(
+                email="w.nipuna@ciu.ac.gq",
+            ),
+        )
+        result: Dict[str, Any] = response.json
+        code: int = response.status_code
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result.get("message"), dict)
+        self.assertIsInstance(result.get("message").get("_schema"), list)
+        self.assertEqual(code, 400)
