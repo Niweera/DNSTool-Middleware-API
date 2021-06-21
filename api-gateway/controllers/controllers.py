@@ -35,3 +35,9 @@ class EmailDomainCheckController(Resource):
 
     def post(self, request_body: Dict[str, Any]) -> ResourceType:
         return service.check_email_domain(request_body)
+
+
+class GCPZonesController(Resource):
+    @cache.cached(timeout=1000)
+    def get(self, query: str) -> ResourceType:
+        return service.get_gcp_zone(query)

@@ -74,3 +74,23 @@ class Service:
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError
+
+    @staticmethod
+    def get_gcp_zone(query: str) -> Union[ResourceType, Response]:
+        try:
+            zone_file: str = abspath(
+                join(dirname(dirname(realpath(__file__))), "static", "gcp-zones.json")
+            )
+            with open(file=zone_file, mode="r", encoding="utf-8") as zones_json:
+                zones: List[str] = json.load(zones_json)
+                if type(zones) != list or len(zones) == 0:
+                    return send_error("error", "error occurred!", 404)
+
+                lower_query: str = query.lower()
+                result: List[str] = [
+                    entry for entry in zones if re.search(lower_query, entry)
+                ]
+                return dict(data=result), 200
+        except Exception as e:
+            write_log("error", e)
+            raise NotFoundError
