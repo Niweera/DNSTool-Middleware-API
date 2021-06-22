@@ -198,6 +198,48 @@
           }
         }
       }
+    },
+    "/gcp-zones/{query}": {
+      "get": {
+        "tags": [
+          "GCP Zones Query Endpoint"
+        ],
+        "description": "Get a list of GCP zones according to the user provided query",
+        "operationId": "getGCPZonesList",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "String to be searched"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of the GCP zones query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GCPZonesQueryResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -231,6 +273,21 @@
           "data": [
             ".com",
             ".company"
+          ]
+        }
+      },
+      "GCPZonesQueryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array"
+          }
+        },
+        "example": {
+          "data": [
+            "us-east1-b",
+            "us-east1-c",
+            "us-east1-d"
           ]
         }
       },
