@@ -8,6 +8,7 @@ from database import FirebaseAuth, FirebaseDB
 from middleware.error_handling import write_log, NotFoundError, UnauthorizedError
 from middleware.validator import send_error
 import re
+from services.mail_service import MailService
 
 
 class Service:
@@ -53,6 +54,7 @@ class Service:
             self.firebase_auth.register_user(
                 full_name, email, organization, profession, reason, password
             )
+            MailService.send_welcome_email(email, full_name)
             return dict(message="User account registered successfully"), 200
         except EmailAlreadyExistsError:
             return send_error(
