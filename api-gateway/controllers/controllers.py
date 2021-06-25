@@ -1,6 +1,7 @@
 from collections import Callable
 from typing import List, Dict, Any
 from config.CustomTypes import ResourceType
+from middleware.auth import authenticate
 from middleware.validator import validator
 from services import Service
 from flask_restful import Resource
@@ -41,3 +42,12 @@ class GCPZonesController(Resource):
     @cache.cached(timeout=1000)
     def get(self, query: str) -> ResourceType:
         return service.get_gcp_zone(query)
+
+
+class CreateScanController(Resource):
+    method_decorators: Dict[str, List[Callable]] = dict(post=[validator])
+    model: str = "CreateScan"
+
+    @authenticate
+    def post(self, request_body: Dict[str, Any], uid: str) -> ResourceType:
+        return service.create_scan(request_body, uid)
