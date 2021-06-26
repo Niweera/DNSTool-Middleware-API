@@ -1,13 +1,12 @@
 from os.path import abspath, join, dirname, realpath
-from typing import Any, Dict
+from typing import Any, Dict, List
 import firebase_admin
 from firebase_admin import credentials, auth, db
 from os import getenv
 from dotenv import load_dotenv
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
-from middleware.error_handling import write_log, UnauthorizedError
-
+from middleware.error_handling import write_log, UnauthorizedError, InternalServerError
 
 load_dotenv()
 
@@ -45,6 +44,26 @@ class FirebaseDB:
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError
+
+    def store_scan_record(self, request_body: Dict[str, List[str]], uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).child("scans").push().set(
+                dict(
+                    zones=list(set(request_body.get("zones"))),
+                    regions=list(set(request_body.get("regions"))),
+                    state="active",
+                )
+            )
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def test_delete_user_data(self, uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).delete()
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
 
 
 class FirebaseAuth:
@@ -89,3 +108,19 @@ class FirebaseAuth:
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError
+
+    @staticmethod
+    def test_get_uid(email: str) -> str:
+        try:
+            return auth.get_user_by_email(email).uid
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    @staticmethod
+    def test_delete_user(uid: str) -> str:
+        try:
+            return auth.delete_user(uid)
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError

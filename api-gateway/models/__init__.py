@@ -5,6 +5,31 @@ from marshmallow.fields import String, Email
 from os.path import abspath, join, dirname, realpath
 
 
+def is_domain_accepted(email: str) -> bool:
+    domain: str = email.split("@")[1]
+    levels: List[str] = domain.split(".")
+    white_list_json: str = abspath(
+        join(dirname(dirname(realpath(__file__))), "static", "whitelist-domains.json")
+    )
+    with open(file=white_list_json, mode="r", encoding="utf-8") as white_list_json_file:
+        white_list: List[str] = json.load(white_list_json_file)
+
+    return (
+        len(
+            list(
+                filter(
+                    lambda exists: exists,
+                    [
+                        ".".join(levels[-i:]) in white_list
+                        for i in range(2, len(levels) + 1)
+                    ],
+                )
+            )
+        )
+        > 0
+    )
+
+
 # Validation Schemas #######################
 class UserSchema(Schema):
     full_name: String = fields.Str(required=True)
@@ -35,26 +60,33 @@ class OrganizationEmailSchema(Schema):
             )
 
 
-def is_domain_accepted(email: str) -> bool:
-    domain: str = email.split("@")[1]
-    levels: List[str] = domain.split(".")
-    white_list_json: str = abspath(
-        join(dirname(dirname(realpath(__file__))), "static", "whitelist-domains.json")
-    )
-    with open(file=white_list_json, mode="r", encoding="utf-8") as white_list_json_file:
-        white_list: List[str] = json.load(white_list_json_file)
+class CreateScanSchema(Schema):
+    zones: String = fields.List(fields.Str, required=True)
+    regions: Email = fields.List(fields.Str, required=True)
 
-    return (
-        len(
-            list(
-                filter(
-                    lambda exists: exists,
-                    [
-                        ".".join(levels[-i:]) in white_list
-                        for i in range(2, len(levels) + 1)
-                    ],
-                )
-            )
+    @validates_schema
+    def check_inputs(self, post_data: Dict[str, Any], **kwargs) -> None:
+        zones: str = post_data.get("zones")
+        regions: str = post_data.get("regions")
+
+        zones_list_json: str = abspath(
+            join(dirname(dirname(realpath(__file__))), "static", "zones.json")
         )
-        > 0
-    )
+        regions_list_json: str = abspath(
+            join(dirname(dirname(realpath(__file__))), "static", "gcp-zones.json")
+        )
+
+        with open(
+            file=zones_list_json, mode="r", encoding="utf-8"
+        ) as zones_list_json_file:
+            zones_list: List[str] = json.load(zones_list_json_file)
+        with open(
+            file=regions_list_json, mode="r", encoding="utf-8"
+        ) as regions_list_json_file:
+            regions_list: List[str] = json.load(regions_list_json_file)
+
+        if not set(zones).issubset(set(zones_list)):
+            raise ValidationError("One or more provided zones are invalid")
+
+        if not set(regions).issubset(set(regions_list)):
+            raise ValidationError("One or more provided GCP regions are invalid")

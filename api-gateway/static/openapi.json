@@ -198,6 +198,97 @@
           }
         }
       }
+    },
+    "/gcp-zones/{query}": {
+      "get": {
+        "tags": [
+          "GCP Zones Query Endpoint"
+        ],
+        "description": "Get a list of GCP zones according to the user provided query",
+        "operationId": "getGCPZonesList",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "String to be searched"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of the GCP zones query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GCPZonesQueryResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scan": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Create Scan Endpoint"
+        ],
+        "description": "Create a scan record",
+        "operationId": "createScan",
+        "parameters": [
+        ],
+        "requestBody": {
+          "description": "Scan details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response of the creation of a scan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateScanResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -234,6 +325,21 @@
           ]
         }
       },
+      "GCPZonesQueryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array"
+          }
+        },
+        "example": {
+          "data": [
+            "us-east1-b",
+            "us-east1-c",
+            "us-east1-d"
+          ]
+        }
+      },
       "RegistrationRequest": {
         "type": "object",
         "properties": {
@@ -265,6 +371,33 @@
           "password": "Super-secret-password"
         }
       },
+      "CreateScanRequest": {
+        "type": "object",
+        "properties": {
+          "zones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "zones": [
+            ".com",
+            ".lk"
+          ],
+          "regions": [
+            "us-east1-b",
+            "us-east1-c"
+          ]
+        }
+      },
       "CheckEmailRequest": {
         "type": "object",
         "properties": {
@@ -285,6 +418,17 @@
         },
         "example": {
           "message": "User account registered successfully"
+        }
+      },
+      "CreateScanResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "Scan has successfully recorded"
         }
       },
       "CheckEmailResponse": {

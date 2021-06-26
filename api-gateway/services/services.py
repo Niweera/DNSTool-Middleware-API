@@ -5,9 +5,15 @@ from firebase_admin.auth import EmailAlreadyExistsError
 from flask import Response
 from config.CustomTypes import ResourceType
 from database import FirebaseAuth, FirebaseDB
-from middleware.error_handling import write_log, NotFoundError, UnauthorizedError
+from middleware.error_handling import (
+    write_log,
+    NotFoundError,
+    UnauthorizedError,
+    InternalServerError,
+)
 from middleware.validator import send_error
 import re
+from services.mail_service import MailService
 
 
 class Service:
@@ -53,6 +59,7 @@ class Service:
             self.firebase_auth.register_user(
                 full_name, email, organization, profession, reason, password
             )
+            MailService.send_welcome_email(email, full_name)
             return dict(message="User account registered successfully"), 200
         except EmailAlreadyExistsError:
             return send_error(
@@ -74,3 +81,31 @@ class Service:
         except Exception as e:
             write_log("error", e)
             raise UnauthorizedError
+
+    @staticmethod
+    def get_gcp_zone(query: str) -> Union[ResourceType, Response]:
+        try:
+            zone_file: str = abspath(
+                join(dirname(dirname(realpath(__file__))), "static", "gcp-zones.json")
+            )
+            with open(file=zone_file, mode="r", encoding="utf-8") as zones_json:
+                zones: List[str] = json.load(zones_json)
+                if type(zones) != list or len(zones) == 0:
+                    return send_error("error", "error occurred!", 404)
+
+                lower_query: str = query.lower()
+                result: List[str] = [
+                    entry for entry in zones if re.search(lower_query, entry)
+                ]
+                return dict(data=result), 200
+        except Exception as e:
+            write_log("error", e)
+            raise NotFoundError
+
+    def create_scan(self, request_body, uid) -> Union[ResourceType, Response]:
+        try:
+            self.firebase_db.store_scan_record(request_body, uid)
+            return dict(message="Scan has successfully recorded"), 200
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError

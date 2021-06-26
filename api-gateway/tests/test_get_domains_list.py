@@ -5,7 +5,7 @@ import requests
 from requests import Response
 from os.path import abspath, join, dirname, realpath
 
-URL = ""
+URL: str = ""
 
 if __name__ == "__main__":
     page: Response = requests.get(URL)
