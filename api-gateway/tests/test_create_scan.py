@@ -13,7 +13,7 @@ class TestCreateScanController(TestCase):
 
     def test_create_scan(self) -> None:
         response: TestResponse = self.app.post(
-            "/scan",
+            "/scans",
             json=dict(
                 zones=[".com", ".lk"],
                 regions=["us-east1-b", "us-east1-c"],

@@ -241,7 +241,7 @@
         }
       }
     },
-    "/scan": {
+    "/scans": {
       "post": {
         "security": [
           {
