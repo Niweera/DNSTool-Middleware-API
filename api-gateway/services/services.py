@@ -109,3 +109,11 @@ class Service:
         except Exception as e:
             write_log("error", e)
             raise InternalServerError
+
+    def get_scans(self, uid) -> Union[ResourceType, Response]:
+        try:
+            data: object = self.firebase_db.get_scan_records(uid)
+            return dict(data=data), 200
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
