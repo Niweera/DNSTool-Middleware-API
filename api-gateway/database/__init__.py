@@ -46,7 +46,7 @@ class FirebaseDB:
             write_log("error", e)
             raise UnauthorizedError
 
-    def store_scan_record(self, request_body: Dict[str, List[str]], uid: str) -> None:
+    def store_scan_record(self, uid: str, request_body: Dict[str, List[str]]) -> None:
         try:
             self.root.child("users").child(uid).child("scans").child(
                 str(datetime.now().timestamp()).replace(".", "")
@@ -72,6 +72,15 @@ class FirebaseDB:
     def test_delete_user_data(self, uid: str) -> None:
         try:
             self.root.child("users").child(uid).delete()
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def update_scan_record(self, id: str, state: str, uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).child("scans").child(id).child(
+                "state"
+            ).set(state)
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

@@ -90,3 +90,15 @@ class CreateScanSchema(Schema):
 
         if not set(regions).issubset(set(regions_list)):
             raise ValidationError("One or more provided GCP regions are invalid")
+
+
+class UpdateScanSchema(Schema):
+    state: String = fields.Str(required=True)
+
+    @validates_schema
+    def check_state(self, post_data: Dict[str, Any], **kwargs) -> None:
+        state: str = post_data.get("state")
+        if state not in ["active", "suspend"]:
+            raise ValidationError(
+                f"Provided state [{state}] is not valid. Acceptable states are ['active','suspend']"
+            )

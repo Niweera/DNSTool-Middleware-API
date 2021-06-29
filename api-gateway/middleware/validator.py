@@ -1,7 +1,12 @@
 from typing import Dict, Any, Optional, Union
 from flask import request, Response
 import json
-from models import UserSchema, OrganizationEmailSchema, CreateScanSchema
+from models import (
+    UserSchema,
+    OrganizationEmailSchema,
+    CreateScanSchema,
+    UpdateScanSchema,
+)
 from functools import wraps
 from middleware.error_handling import write_log
 
@@ -9,6 +14,7 @@ validator_schemas: Dict[str, Any] = {
     "User": UserSchema,
     "OrganizationEmail": OrganizationEmailSchema,
     "CreateScan": CreateScanSchema,
+    "UpdateScan": UpdateScanSchema,
 }
 
 

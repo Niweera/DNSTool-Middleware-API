@@ -45,12 +45,11 @@ class GCPZonesController(Resource):
 
 
 class ScansController(Resource):
-    method_decorators: Dict[str, List[Callable]] = dict(post=[validator])
+    method_decorators: Dict[str, List[Callable]] = dict(post=[validator, authenticate])
     model: str = "CreateScan"
 
-    @authenticate
-    def post(self, request_body: Dict[str, Any], uid: str) -> ResourceType:
-        return service.create_scan(request_body, uid)
+    def post(self, uid: str, request_body: Dict[str, Any]) -> ResourceType:
+        return service.create_scan(uid, request_body)
 
     @authenticate
     def get(self, uid: str) -> ResourceType:
@@ -58,13 +57,14 @@ class ScansController(Resource):
 
 
 class ScanController(Resource):
-    method_decorators: Dict[str, List[Callable]] = dict(patch=[validator])
+    method_decorators: Dict[str, List[Callable]] = dict(patch=[validator, authenticate])
     model: str = "UpdateScan"
 
-    @authenticate
-    def patch(self, id: str, request_body: Dict[str, Any], uid: str) -> ResourceType:
-        return service.update_scan(id, request_body, uid)
+    def patch(
+        self, uid: str, request_body: Dict[str, Any], **kwargs: Dict[str, str]
+    ) -> ResourceType:
+        return service.update_scan(uid, request_body, **kwargs)
 
     @authenticate
-    def delete(self, id: str, uid: str) -> ResourceType:
-        return service.delete_scan(id, uid)
+    def delete(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
+        return service.delete_scan(uid, **kwargs)
