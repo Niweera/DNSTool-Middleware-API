@@ -10,6 +10,7 @@ class Config:
     PRESERVE_CONTEXT_ON_EXCEPTION: bool = True
     FIREBASE_JSON: str = os.environ.get("FIREBASE_JSON")
     FIREBASE_DATABASE_URL: str = os.environ.get("FIREBASE_DATABASE_URL")
+    FIREBASE_API_KEY: str = os.environ.get("FIREBASE_API_KEY")
     GCS_JSON: str = os.environ.get("GCS_JSON")
     GCS_BUCKET_NAME: str = os.environ.get("GCS_BUCKET_NAME")
     MAIL_SERVER: str = os.environ.get("MAIL_SERVER")

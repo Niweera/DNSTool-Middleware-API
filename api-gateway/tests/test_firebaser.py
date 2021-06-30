@@ -18,7 +18,7 @@ def get_id_token(uid: str):
     firebase_admin.initialize_app(cred, name="TEST_APP")
     custom_token = auth.create_custom_token(uid).decode("utf-8")
     res: Response = requests.post(
-        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=AIzaSyAvQ_5T0ld46B7nAChU20odyYKRrTI5ois",
+        f"https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key={getenv('FIREBASE_API_KEY')}",
         data=dict(token=custom_token, returnSecureToken=True),
     )
     return res.json().get("idToken")

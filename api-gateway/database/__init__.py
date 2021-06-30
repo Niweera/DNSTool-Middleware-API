@@ -85,6 +85,13 @@ class FirebaseDB:
             write_log("error", e)
             raise InternalServerError
 
+    def delete_scan_record(self, id: str, uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).child("scans").child(id).delete()
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
 
 class FirebaseAuth:
     def __init__(self) -> None:

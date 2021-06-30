@@ -124,10 +124,21 @@ class Service:
         self, uid: str, request_body: Dict[str, Any], **kwargs: Dict[str, str]
     ) -> Union[ResourceType, Response]:
         try:
-            state = request_body.get("state", "")
-            id = kwargs.get("id", "")
+            state: str = request_body.get("state", "")
+            id: str = kwargs.get("id", "")
             self.firebase_db.update_scan_record(id, state, uid)
             return dict(message=f"[{id}] state updated successfully"), 200
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def delete_scan(
+        self, uid: str, **kwargs: Dict[str, str]
+    ) -> Union[ResourceType, Response]:
+        try:
+            id: str = kwargs.get("id", "")
+            self.firebase_db.delete_scan_record(id, uid)
+            return dict(message=f"scan [{id}] deleted successfully"), 200
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

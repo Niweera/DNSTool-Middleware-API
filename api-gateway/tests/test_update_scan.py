@@ -35,5 +35,7 @@ class TestScanController(TestCase):
         code: int = response.status_code
         self.assertIsInstance(result, dict)
         self.assertIsInstance(result.get("message"), str)
-        self.assertEqual(result.get("message"), "Scan record has successfully removed")
+        self.assertEqual(
+            result.get("message"), "scan [1624893376207075] deleted successfully"
+        )
         self.assertEqual(code, 200)
