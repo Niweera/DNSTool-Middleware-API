@@ -242,6 +242,42 @@
       }
     },
     "/scans": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Get Scans Endpoint"
+        ],
+        "description": "Get all the scans for the authenticated user",
+        "operationId": "getScans",
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of the scans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetScansResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -273,6 +309,88 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CreateScanResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scans/{id}": {
+      "patch": {
+        "tags": [
+          "Update Scans Endpoint"
+        ],
+        "description": "Update the state of a scan by given ID by an authenticated user",
+        "operationId": "updateScan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the scan to be updated"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of updating the state of the scan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateScanResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Delete Scans Endpoint"
+        ],
+        "description": "Delete a scan by given ID by an authenticated user",
+        "operationId": "deleteScan",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the scan to be deleted"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of deleting the scan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteScanResponse"
                 }
               }
             }
@@ -429,6 +547,106 @@
         },
         "example": {
           "message": "Scan has successfully recorded"
+        }
+      },
+      "GetScansResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "object",
+                "properties": {
+                  "regions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "zones": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "data": {
+            "1624893385247991": {
+              "regions": [
+                "us-east1-b",
+                "us-east1-c"
+              ],
+              "state": "active",
+              "zones": [
+                ".com",
+                ".lk"
+              ]
+            },
+            "1624893391046098": {
+              "regions": [
+                "us-east1-c",
+                "us-east1-b"
+              ],
+              "state": "active",
+              "zones": [
+                ".lk",
+                ".com"
+              ]
+            },
+            "1624893397158731": {
+              "regions": [
+                "us-east1-c",
+                "us-east1-b"
+              ],
+              "state": "active",
+              "zones": [
+                ".lk",
+                ".com"
+              ]
+            },
+            "1624980505513786": {
+              "regions": [
+                "us-east1-c",
+                "us-east1-b"
+              ],
+              "state": "active",
+              "zones": [
+                ".com",
+                ".org"
+              ]
+            }
+          }
+        }
+      },
+      "UpdateScanResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "[{id}] state updated successfully"
+        }
+      },
+      "DeleteScanResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "scan [{id}] deleted successfully"
         }
       },
       "CheckEmailResponse": {
