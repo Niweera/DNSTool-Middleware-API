@@ -13,7 +13,7 @@ class TestScanController(TestCase):
 
     def test_update_scan(self) -> None:
         response: TestResponse = self.app.patch(
-            "/scans/1624893376207075",
+            "/scans/1624893391046098",
             json=dict(state="suspend"),
             headers=dict(Authorization=f"Bearer {get_id_token(self.uid)}"),
         )
@@ -22,7 +22,7 @@ class TestScanController(TestCase):
         self.assertIsInstance(result, dict)
         self.assertIsInstance(result.get("message"), str)
         self.assertEqual(
-            result.get("message"), "[1624893376207075] state updated successfully"
+            result.get("message"), "[1624893391046098] state updated successfully"
         )
         self.assertEqual(code, 200)
 

@@ -24,7 +24,9 @@
           return (document.getElementById("zoneList").innerHTML = "");
         }
         let query = x.value;
-        const response = await fetch("http://localhost:9999/gcp-zones/" + query);
+        const response = await fetch(
+          "http://localhost:9999/gcp-zones/" + query
+        );
         const res = await response.json();
         const zones = res?.data;
         document.getElementById("zoneList").innerHTML = "";
