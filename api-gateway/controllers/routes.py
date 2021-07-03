@@ -4,7 +4,8 @@ from .controllers import (
     RegistrationController,
     EmailDomainCheckController,
     GCPZonesController,
-    CreateScanController,
+    ScansController,
+    ScanController,
 )
 from flask_restful import Api
 
@@ -15,4 +16,5 @@ def initialize_routes(api: Api) -> None:
     api.add_resource(RegistrationController, "/register")
     api.add_resource(EmailDomainCheckController, "/check-email")
     api.add_resource(GCPZonesController, "/gcp-zones/<query>")
-    api.add_resource(CreateScanController, "/scan")
+    api.add_resource(ScansController, "/scans")
+    api.add_resource(ScanController, "/scans/<id>")

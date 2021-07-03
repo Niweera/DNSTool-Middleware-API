@@ -44,10 +44,27 @@ class GCPZonesController(Resource):
         return service.get_gcp_zone(query)
 
 
-class CreateScanController(Resource):
-    method_decorators: Dict[str, List[Callable]] = dict(post=[validator])
+class ScansController(Resource):
+    method_decorators: Dict[str, List[Callable]] = dict(post=[validator, authenticate])
     model: str = "CreateScan"
 
+    def post(self, uid: str, request_body: Dict[str, Any]) -> ResourceType:
+        return service.create_scan(uid, request_body)
+
     @authenticate
-    def post(self, request_body: Dict[str, Any], uid: str) -> ResourceType:
-        return service.create_scan(request_body, uid)
+    def get(self, uid: str) -> ResourceType:
+        return service.get_scans(uid)
+
+
+class ScanController(Resource):
+    method_decorators: Dict[str, List[Callable]] = dict(patch=[validator, authenticate])
+    model: str = "UpdateScan"
+
+    def patch(
+        self, uid: str, request_body: Dict[str, Any], **kwargs: Dict[str, str]
+    ) -> ResourceType:
+        return service.update_scan(uid, request_body, **kwargs)
+
+    @authenticate
+    def delete(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
+        return service.delete_scan(uid, **kwargs)

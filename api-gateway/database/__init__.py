@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
 from middleware.error_handling import write_log, UnauthorizedError, InternalServerError
+from datetime import datetime
 
 load_dotenv()
 
@@ -45,9 +46,11 @@ class FirebaseDB:
             write_log("error", e)
             raise UnauthorizedError
 
-    def store_scan_record(self, request_body: Dict[str, List[str]], uid: str) -> None:
+    def store_scan_record(self, uid: str, request_body: Dict[str, List[str]]) -> None:
         try:
-            self.root.child("users").child(uid).child("scans").push().set(
+            self.root.child("users").child(uid).child("scans").child(
+                str(datetime.now().timestamp()).replace(".", "")
+            ).set(
                 dict(
                     zones=list(set(request_body.get("zones"))),
                     regions=list(set(request_body.get("regions"))),
@@ -58,9 +61,33 @@ class FirebaseDB:
             write_log("error", e)
             raise InternalServerError
 
+    def get_scan_records(self, uid: str) -> object:
+        try:
+            scans: object = self.root.child("users").child(uid).child("scans").get()
+            return scans
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
     def test_delete_user_data(self, uid: str) -> None:
         try:
             self.root.child("users").child(uid).delete()
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def update_scan_record(self, id: str, state: str, uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).child("scans").child(id).child(
+                "state"
+            ).set(state)
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def delete_scan_record(self, id: str, uid: str) -> None:
+        try:
+            self.root.child("users").child(uid).child("scans").child(id).delete()
         except Exception as e:
             write_log("error", e)
             raise InternalServerError
