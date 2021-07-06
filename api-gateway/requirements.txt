@@ -1,4 +1,6 @@
 aniso8601==9.0.1
+blinker==1.4
+Brotli==1.0.9
 CacheControl==0.12.6
 cachetools==4.2.2
 certifi==2021.5.30
@@ -9,7 +11,9 @@ colorama==0.4.4
 firebase-admin==5.0.0
 Flask==2.0.1
 Flask-Caching==1.10.1
+Flask-Compress==1.9.0
 Flask-Cors==3.0.10
+Flask-Mail==0.9.1
 Flask-RESTful==0.3.9
 flask-swagger-ui==3.36.0
 google-api-core==1.29.0
@@ -28,16 +32,20 @@ idna==2.10
 importlib-metadata==4.5.0
 itsdangerous==2.0.1
 Jinja2==3.0.1
+lxml==4.6.3
 MarkupSafe==2.0.1
 marshmallow==3.12.1
 msgpack==1.0.2
+numpy==1.20.3
 packaging==20.9
+pandas==1.2.4
 proto-plus==1.18.1
 protobuf==3.17.2
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
 pyparsing==2.4.7
+python-dateutil==2.8.1
 python-dotenv==0.17.1
 pytz==2021.1
 requests==2.25.1
