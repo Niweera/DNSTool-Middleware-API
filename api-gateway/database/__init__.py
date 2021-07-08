@@ -8,6 +8,7 @@ from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
 from middleware.error_handling import write_log, UnauthorizedError, InternalServerError
 from datetime import datetime
+from itertools import chain
 
 load_dotenv()
 
@@ -65,6 +66,18 @@ class FirebaseDB:
         try:
             scans: object = self.root.child("users").child(uid).child("scans").get()
             return scans
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def get_scanning_zones(self, uid: str) -> List[str]:
+        try:
+            scans: object = self.get_scan_records(uid)
+            if not scans:
+                return []
+            current_zones_list: List[str] = [scans[id]["zones"] for id in scans]
+            current_zones: List[str] = list(set(chain(*current_zones_list)))
+            return current_zones
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

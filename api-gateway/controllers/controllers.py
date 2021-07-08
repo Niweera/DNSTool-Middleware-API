@@ -17,9 +17,9 @@ class RootEndPointController(Resource):
 
 
 class ZonesController(Resource):
-    @cache.cached(timeout=1000)
-    def get(self, query: str) -> ResourceType:
-        return service.get_zone(query)
+    @authenticate
+    def get(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
+        return service.get_zone(uid, **kwargs)
 
 
 class RegistrationController(Resource):
