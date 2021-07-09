@@ -25,15 +25,12 @@ class Service:
     def get_root_endpoint() -> ResourceType:
         return dict(message="Root Endpoint Accessed"), 200
 
-    def get_zone(
-        self, uid: str, **kwargs: Dict[str, str]
-    ) -> Union[ResourceType, Response]:
+    @staticmethod
+    def get_zone(query: str) -> Union[ResourceType, Response]:
         try:
-            query: str = kwargs.get("query", "")
             zone_file: str = abspath(
                 join(dirname(dirname(realpath(__file__))), "static", "zones.json")
             )
-            scanning_zones: List[str] = self.firebase_db.get_scanning_zones(uid)
             with open(file=zone_file, mode="r", encoding="utf-8") as zones_json:
                 zones: List[str] = json.load(zones_json)
                 if type(zones) != list or len(zones) == 0:
@@ -41,9 +38,7 @@ class Service:
 
                 lower_query: str = query.lower()
                 result: List[str] = [
-                    entry
-                    for entry in set(zones).difference(set(scanning_zones))
-                    if re.search(lower_query, entry)
+                    entry for entry in zones if re.search(lower_query, entry)
                 ]
                 return dict(data=result), 200
         except Exception as e:
@@ -111,8 +106,7 @@ class Service:
         self, uid: str, request_body: Dict[str, Any]
     ) -> Union[ResourceType, Response]:
         try:
-            self.firebase_db.store_scan_record(uid, request_body)
-            return dict(message="Scan has successfully recorded"), 200
+            return self.firebase_db.store_scan_record(uid, request_body)
         except Exception as e:
             write_log("error", e)
             raise InternalServerError
