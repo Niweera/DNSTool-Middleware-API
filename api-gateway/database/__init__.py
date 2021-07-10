@@ -3,25 +3,21 @@ from os.path import abspath, join, dirname, realpath
 from typing import Any, Dict, List, Union, Tuple
 import firebase_admin
 from firebase_admin import credentials, auth, db
-from os import getenv
-from dotenv import load_dotenv
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
 from flask import Response
+from config import Config
 from config.CustomTypes import ResourceType
 from middleware.error_handling import write_log, UnauthorizedError, InternalServerError
 from datetime import datetime
 from itertools import chain
 from middleware.validator import send_error
 
-load_dotenv()
 
 cred: Any = credentials.Certificate(
-    abspath(
-        join(dirname(dirname(realpath(__file__))), "config", getenv("FIREBASE_JSON"))
-    )
+    abspath(join(dirname(dirname(realpath(__file__))), "config", Config.FIREBASE_JSON))
 )
-firebase_admin.initialize_app(cred, {"databaseURL": getenv("FIREBASE_DATABASE_URL")})
+firebase_admin.initialize_app(cred, {"databaseURL": Config.FIREBASE_DATABASE_URL})
 
 
 class FirebaseDB:

@@ -20,3 +20,6 @@ class Config:
     MAIL_USERNAME: str = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD: str = os.environ.get("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER: str = os.environ.get("MAIL_DEFAULT_SENDER")
+    GOOGLE_RECAPTCHA_SITE_KEY: str = os.environ.get("GOOGLE_RECAPTCHA_SITE_KEY")
+    GOOGLE_RECAPTCHA_SECRET_KEY: str = os.environ.get("GOOGLE_RECAPTCHA_SECRET_KEY")
+    GOOGLE_RECAPTCHA_SCORE_THRESHOLD: str = 0.5
