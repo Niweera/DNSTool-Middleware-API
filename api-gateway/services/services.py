@@ -106,8 +106,7 @@ class Service:
         self, uid: str, request_body: Dict[str, Any]
     ) -> Union[ResourceType, Response]:
         try:
-            self.firebase_db.store_scan_record(uid, request_body)
-            return dict(message="Scan has successfully recorded"), 200
+            return self.firebase_db.store_scan_record(uid, request_body)
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

@@ -1,22 +1,23 @@
+import itertools
 from os.path import abspath, join, dirname, realpath
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union, Tuple
 import firebase_admin
 from firebase_admin import credentials, auth, db
-from os import getenv
-from dotenv import load_dotenv
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
+from flask import Response
+from config import Config
+from config.CustomTypes import ResourceType
 from middleware.error_handling import write_log, UnauthorizedError, InternalServerError
 from datetime import datetime
+from itertools import chain
+from middleware.validator import send_error
 
-load_dotenv()
 
 cred: Any = credentials.Certificate(
-    abspath(
-        join(dirname(dirname(realpath(__file__))), "config", getenv("FIREBASE_JSON"))
-    )
+    abspath(join(dirname(dirname(realpath(__file__))), "config", Config.FIREBASE_JSON))
 )
-firebase_admin.initialize_app(cred, {"databaseURL": getenv("FIREBASE_DATABASE_URL")})
+firebase_admin.initialize_app(cred, {"databaseURL": Config.FIREBASE_DATABASE_URL})
 
 
 class FirebaseDB:
@@ -46,17 +47,51 @@ class FirebaseDB:
             write_log("error", e)
             raise UnauthorizedError
 
-    def store_scan_record(self, uid: str, request_body: Dict[str, List[str]]) -> None:
+    def store_scan_record(
+        self, uid: str, request_body: Dict[str, List[str]]
+    ) -> Union[ResourceType, Response]:
         try:
-            self.root.child("users").child(uid).child("scans").child(
-                str(datetime.now().timestamp()).replace(".", "")
-            ).set(
-                dict(
-                    zones=list(set(request_body.get("zones"))),
-                    regions=list(set(request_body.get("regions"))),
-                    state="active",
+            zones: List[str] = list(set(request_body.get("zones")))
+            regions: List[str] = list(set(request_body.get("regions")))
+            input_scanning_combinations: List[Tuple[Any]] = list(
+                itertools.product(zones, regions)
+            )
+            scans: object = self.get_scan_records(uid)
+            if not bool(scans):
+                scans: Dict[str, Dict[str, Any]] = dict()
+            current_zones_list: List[str] = [scans[id]["zones"] for id in scans]
+            current_zones: List[str] = list(set(chain(*current_zones_list)))
+            current_regions_list: List[str] = [scans[id]["regions"] for id in scans]
+            current_regions: List[str] = list(set(chain(*current_regions_list)))
+            current_scanning_combinations: List[Tuple[Any, ...]] = list(
+                itertools.product(current_zones, current_regions)
+            )
+            available_scans: List[Tuple[Any, ...]] = list(
+                set(input_scanning_combinations).difference(
+                    set(current_scanning_combinations)
                 )
             )
+            if len(available_scans) > 0:
+                available_zones, available_regions = zip(*available_scans)
+            else:
+                available_zones, available_regions = list(), list()
+
+            if len(available_zones) > 0 and len(available_regions) > 0:
+                self.root.child("users").child(uid).child("scans").child(
+                    str(datetime.now().timestamp()).replace(".", "")
+                ).set(
+                    dict(
+                        zones=list(set(available_zones)),
+                        regions=list(set(available_regions)),
+                        state="active",
+                    )
+                )
+                return dict(message="Scan has successfully recorded"), 200
+            else:
+                return send_error(
+                    "no new scannable zones, regions to set",
+                    "The zones and regions you set are already scanning",
+                )
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

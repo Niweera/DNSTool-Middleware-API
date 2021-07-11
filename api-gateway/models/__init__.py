@@ -38,6 +38,7 @@ class UserSchema(Schema):
     profession: String = fields.Str(required=True)
     reason: String = fields.Str(required=True)
     password: String = fields.Str(required=True)
+    g_recaptcha_response: String = fields.Str(required=True)
 
     @validates_schema
     def check_org_email(self, user_data: Dict[str, Any], **kwargs) -> None:

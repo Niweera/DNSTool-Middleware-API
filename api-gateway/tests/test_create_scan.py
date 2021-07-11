@@ -15,7 +15,7 @@ class TestScansController(TestCase):
         response: TestResponse = self.app.post(
             "/scans",
             json=dict(
-                zones=[".com", ".org"],
+                zones=[".com", ".lk"],
                 regions=["us-east1-b", "us-east1-c"],
             ),
             headers=dict(Authorization=f"Bearer {get_id_token(self.uid)}"),

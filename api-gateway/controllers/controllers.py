@@ -2,6 +2,7 @@ from collections import Callable
 from typing import List, Dict, Any
 from config.CustomTypes import ResourceType
 from middleware.auth import authenticate
+from middleware.google_recaptcha import google_recaptcha
 from middleware.validator import validator
 from services import Service
 from flask_restful import Resource
@@ -23,7 +24,9 @@ class ZonesController(Resource):
 
 
 class RegistrationController(Resource):
-    method_decorators: Dict[str, List[Callable]] = dict(post=[validator])
+    method_decorators: Dict[str, List[Callable]] = dict(
+        post=[validator, google_recaptcha]
+    )
     model: str = "User"
 
     def post(self, request_body: Dict[str, Any]) -> ResourceType:

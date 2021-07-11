@@ -1,0 +1,82 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Update Scan State</title>
+    <style>
+      table,
+      td,
+      th {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body onload="myFunction()">
+    <h3>Current Scans</h3>
+
+    <table id="dataTable">
+      <tr>
+        <th>ID</th>
+        <th>State</th>
+        <th>Region</th>
+        <th>Zones</th>
+      </tr>
+    </table>
+
+    <br />
+    <br />
+    <form>
+      <label for="scan-id">Scan ID:</label><br />
+      <input type="text" id="scan-id" name="scan-id" value="" /><br />
+      <label for="state">State:</label><br />
+      <input type="text" id="state" name="state" value="" /><br /><br />
+      <input type="button" value="Update Scan State" onclick="updateState()" />
+    </form>
+
+    <script>
+      const token = "";
+
+      async function updateState() {
+        let scanID = document.getElementById("scan-id");
+        let state = document.getElementById("state");
+        await fetch(`http://localhost:9999/scans/${scanID.value}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({ state: state.value }),
+        });
+        location.reload();
+      }
+
+      async function myFunction() {
+        let table = document.getElementById("dataTable");
+        const response = await fetch("http://localhost:9999/scans", {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+        const res = await response.json();
+        const data = res?.data;
+        Object.keys(data).forEach((id) => {
+          let row = table.insertRow(-1);
+          let cell1 = row.insertCell(0);
+          let cell2 = row.insertCell(1);
+          let cell3 = row.insertCell(2);
+          let cell4 = row.insertCell(3);
+          cell1.innerHTML = id;
+          cell2.innerHTML = data[id]["state"];
+          cell3.innerHTML = data[id]["regions"].join(" ");
+          cell4.innerHTML = data[id]["zones"].join(" ");
+        });
+      }
+    </script>
+  </body>
+</html>
