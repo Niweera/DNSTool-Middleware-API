@@ -12,7 +12,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9999/",
+      "url": "http://localhost:8878/",
       "description": "Local Development Server"
     }
   ],
@@ -127,7 +127,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmailAlreadyExistsError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailAlreadyExistsError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GoogleRECAPTCHAError"
+                    }
+                  ]
                 }
               }
             }
@@ -433,7 +440,10 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "example": {
@@ -447,7 +457,10 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "example": {
@@ -478,6 +491,9 @@
           },
           "password": {
             "type": "string"
+          },
+          "g_recaptcha_response": {
+            "type": "string"
           }
         },
         "example": {
@@ -486,8 +502,18 @@
           "organization": "Niweera.inc",
           "profession": "Web Developer",
           "reason": "For education purposes",
-          "password": "Super-secret-password"
-        }
+          "password": "Super-secret-password",
+          "g_recaptcha_response": "<Google reCAPTCHA v3 token>"
+        },
+        "required": [
+          "full_name",
+          "email",
+          "organization",
+          "profession",
+          "reason",
+          "password",
+          "g_recaptcha_response"
+        ]
       },
       "CreateScanRequest": {
         "type": "object",
@@ -680,6 +706,17 @@
         },
         "example": {
           "message": "The user with the provided email already exists"
+        }
+      },
+      "GoogleRECAPTCHAError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "Google reCAPTCHA v3 token is missing"
         }
       },
       "EmailValidationError": {

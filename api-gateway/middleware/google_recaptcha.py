@@ -32,13 +32,13 @@ def google_recaptcha(func: Callable[..., ResourceType]):
             else:
                 return send_error(
                     "reCAPTCHA score is lower",
-                    "Human interaction is required for registration!",
+                    "Google reCAPTCHA v3 token is missing",
                     400,
                 )
         else:
             return send_error(
                 "No Google reCAPTCHA token provided",
-                "Human interaction is required for registration!",
+                "Google reCAPTCHA v3 token is missing",
                 400,
             )
 
