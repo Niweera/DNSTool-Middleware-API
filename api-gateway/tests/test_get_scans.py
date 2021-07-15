@@ -11,18 +11,13 @@ class TestScansController(TestCase):
         self.app: FlaskClient = app.test_client()
         self.uid = "UchQlgJb9ibBoV991fqtQ5ykfHz2"
 
-    def test_create_scan(self) -> None:
-        response: TestResponse = self.app.post(
+    def test_get_scans(self) -> None:
+        response: TestResponse = self.app.get(
             "/scans",
-            json=dict(
-                zones=[".com", ".lk"],
-                regions=["us-east1-b", "us-east1-c"],
-            ),
             headers=dict(Authorization=f"Bearer {get_id_token(self.uid)}"),
         )
         result: Dict[str, Any] = response.json
         code: int = response.status_code
         self.assertIsInstance(result, dict)
-        self.assertIsInstance(result.get("message"), str)
-        self.assertEqual(result.get("message"), "Scan has successfully recorded")
+        self.assertIsInstance(result.get("data"), dict)
         self.assertEqual(code, 200)

@@ -56,3 +56,22 @@ class TestRegistrationController(TestCase):
         self.assertIsInstance(result.get("message"), dict)
         self.assertIsInstance(result.get("message").get("_schema"), list)
         self.assertEqual(code, 400)
+
+    def test_fail_register_user_for_recaptcha(self) -> None:
+        response: TestResponse = self.app.post(
+            "/register",
+            json=dict(
+                full_name="Nipuna Weerasekara",
+                email=self.failing_email,
+                organization="Niweera.inc",
+                profession="Web Developer",
+                reason="For education purposes",
+                password="super-secret",
+            ),
+        )
+        result: Dict[str, Any] = response.json
+        code: int = response.status_code
+        self.assertIsInstance(result, dict)
+        self.assertIsInstance(result.get("message"), str)
+        self.assertEqual(result.get("message"), "Google reCAPTCHA v3 token is missing")
+        self.assertEqual(code, 400)
