@@ -340,6 +340,11 @@
         ],
         "description": "Update the state of a scan by given ID by an authenticated user",
         "operationId": "updateScan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -351,6 +356,17 @@
             "description": "ID of the scan to be updated"
           }
         ],
+        "requestBody": {
+          "description": "Scan details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScanRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Response of updating the state of the scan",
@@ -380,6 +396,11 @@
         ],
         "description": "Delete a scan by given ID by an authenticated user",
         "operationId": "deleteScan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -398,6 +419,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DeleteScanResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service-account/{id}": {
+      "get": {
+        "tags": [
+          "Get Service Account Endpoint"
+        ],
+        "description": "Get the service account for a specific scan",
+        "operationId": "getService Account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the scan to obtain the service account"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response containing the service account JSON file",
+            "content": {
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountResponse"
                 }
               }
             }
@@ -540,6 +608,21 @@
             "us-east1-b",
             "us-east1-c"
           ]
+        }
+      },
+      "UpdateScanRequest": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspend"
+            ]
+          }
+        },
+        "example": {
+          "state": "suspend"
         }
       },
       "CheckEmailRequest": {
@@ -685,6 +768,11 @@
         "example": {
           "message": "[{email}] is valid and accepted."
         }
+      },
+      "ServiceAccountResponse": {
+        "description": "The service account JSON file in byte format",
+        "type": "string",
+        "format": "byte"
       },
       "InternalServerError": {
         "type": "object",

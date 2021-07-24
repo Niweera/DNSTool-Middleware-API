@@ -1,8 +1,9 @@
+import io
 import json
 from os.path import abspath, join, dirname, realpath
-from typing import List, Union, Dict, Any
+from typing import List, Union, Dict, Any, Optional, Tuple
 from firebase_admin.auth import EmailAlreadyExistsError
-from flask import Response
+from flask import Response, send_file
 from config.CustomTypes import ResourceType
 from database import FirebaseAuth, FirebaseDB
 from middleware.error_handling import (
@@ -13,6 +14,7 @@ from middleware.error_handling import (
 )
 from middleware.validator import send_error
 import re
+from services.auth_service import AuthService
 from services.mail_service import MailService
 
 
@@ -138,6 +140,51 @@ class Service:
             id: str = kwargs.get("id", "")
             self.firebase_db.delete_scan_record(id, uid)
             return dict(message=f"scan [{id}] deleted successfully"), 200
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def get_service_account(
+        self, uid: str, **kwargs: Dict[str, str]
+    ) -> Union[ResourceType, Response]:
+        try:
+            id: str = kwargs.get("id", "")
+            current_scans: Optional[
+                List[Tuple[Any, ...]]
+            ] = self.firebase_db.get_current_scanning_combinations(id, uid)
+            if not current_scans:
+                send_error(
+                    "Scan is deleted or suspended by the user",
+                    "Scan is deleted or suspended",
+                    404,
+                )
+            private_key, public_key = AuthService.generate_rsa_key_pair()
+            private_key_id: str = AuthService.generate_private_key_id()
+            self.firebase_db.store_public_key(id, uid, public_key, private_key_id)
+            email: object = self.firebase_db.get_user_email(uid)
+            service_account: Dict[str, str] = dict(
+                type="service_account",
+                project_id="DNS-TOOL",
+                private_key_id=private_key_id,
+                private_key=private_key.decode("utf-8"),
+                client_email=email,
+                client_id=uid,
+                scan_id=id,
+                scans=current_scans,
+            )
+            service_account_dump: str = json.dumps(
+                service_account, indent=2, sort_keys=False
+            )
+            service_account_binary: bytes = service_account_dump.encode()
+            service_account_file: io.BytesIO = io.BytesIO(service_account_binary)
+            response: Response = send_file(
+                service_account_file,
+                mimetype="text/json",
+                as_attachment=True,
+                download_name=f"service_account_{id}.json",
+            )
+            response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
+            return response
         except Exception as e:
             write_log("error", e)
             raise InternalServerError
