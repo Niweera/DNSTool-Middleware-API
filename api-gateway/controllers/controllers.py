@@ -71,3 +71,9 @@ class ScanController(Resource):
     @authenticate
     def delete(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
         return service.delete_scan(uid, **kwargs)
+
+
+class ServiceAccountController(Resource):
+    @authenticate
+    def get(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
+        return service.get_service_account(uid, **kwargs)

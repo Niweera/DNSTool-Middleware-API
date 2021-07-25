@@ -12,7 +12,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9999/",
+      "url": "http://localhost:8878/",
       "description": "Local Development Server"
     }
   ],
@@ -127,7 +127,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmailAlreadyExistsError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailAlreadyExistsError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GoogleRECAPTCHAError"
+                    }
+                  ]
                 }
               }
             }
@@ -333,6 +340,11 @@
         ],
         "description": "Update the state of a scan by given ID by an authenticated user",
         "operationId": "updateScan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -344,6 +356,17 @@
             "description": "ID of the scan to be updated"
           }
         ],
+        "requestBody": {
+          "description": "Scan details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScanRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Response of updating the state of the scan",
@@ -373,6 +396,11 @@
         ],
         "description": "Delete a scan by given ID by an authenticated user",
         "operationId": "deleteScan",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -391,6 +419,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DeleteScanResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service-account/{id}": {
+      "get": {
+        "tags": [
+          "Get Service Account Endpoint"
+        ],
+        "description": "Get the service account for a specific scan",
+        "operationId": "getService Account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "ID of the scan to obtain the service account"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response containing the service account JSON file",
+            "content": {
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceAccountResponse"
                 }
               }
             }
@@ -433,7 +508,10 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "example": {
@@ -447,7 +525,10 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "example": {
@@ -478,6 +559,9 @@
           },
           "password": {
             "type": "string"
+          },
+          "g_recaptcha_response": {
+            "type": "string"
           }
         },
         "example": {
@@ -486,8 +570,18 @@
           "organization": "Niweera.inc",
           "profession": "Web Developer",
           "reason": "For education purposes",
-          "password": "Super-secret-password"
-        }
+          "password": "Super-secret-password",
+          "g_recaptcha_response": "<Google reCAPTCHA v3 token>"
+        },
+        "required": [
+          "full_name",
+          "email",
+          "organization",
+          "profession",
+          "reason",
+          "password",
+          "g_recaptcha_response"
+        ]
       },
       "CreateScanRequest": {
         "type": "object",
@@ -514,6 +608,21 @@
             "us-east1-b",
             "us-east1-c"
           ]
+        }
+      },
+      "UpdateScanRequest": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspend"
+            ]
+          }
+        },
+        "example": {
+          "state": "suspend"
         }
       },
       "CheckEmailRequest": {
@@ -660,6 +769,11 @@
           "message": "[{email}] is valid and accepted."
         }
       },
+      "ServiceAccountResponse": {
+        "description": "The service account JSON file in byte format",
+        "type": "string",
+        "format": "byte"
+      },
       "InternalServerError": {
         "type": "object",
         "properties": {
@@ -680,6 +794,17 @@
         },
         "example": {
           "message": "The user with the provided email already exists"
+        }
+      },
+      "GoogleRECAPTCHAError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "message": "Google reCAPTCHA v3 token is missing"
         }
       },
       "EmailValidationError": {

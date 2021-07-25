@@ -1,6 +1,6 @@
 import itertools
 from os.path import abspath, join, dirname, realpath
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Union, Tuple, Optional
 import firebase_admin
 from firebase_admin import credentials, auth, db
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
@@ -123,6 +123,52 @@ class FirebaseDB:
     def delete_scan_record(self, id: str, uid: str) -> None:
         try:
             self.root.child("users").child(uid).child("scans").child(id).delete()
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def get_current_scanning_combinations(
+        self, id: str, uid: str
+    ) -> Optional[List[Dict[str, str]]]:
+        try:
+            scan: object = (
+                self.root.child("users").child(uid).child("scans").child(id).get()
+            )
+            state: str = scan["state"]
+
+            if state != "active":
+                return None
+
+            current_scanning_combinations: List[Tuple[Any, ...]] = list(
+                itertools.product(scan["regions"], scan["zones"])
+            )
+            current_scans: List[Dict[str, str]] = [
+                dict(region=region, zone=zone)
+                for region, zone in current_scanning_combinations
+            ]
+            return current_scans
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def store_public_key(
+        self, id: str, uid: str, public_key: bytes, private_key_id: str
+    ) -> None:
+        try:
+            self.root.child("public_keys").child(uid).child(id).set(
+                dict(
+                    public_key=public_key.decode("utf-8"),
+                    private_key_id=private_key_id,
+                )
+            )
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def get_user_email(self, uid: str) -> object:
+        try:
+            email: object = self.root.child("users").child(uid).child("email").get()
+            return email
         except Exception as e:
             write_log("error", e)
             raise InternalServerError

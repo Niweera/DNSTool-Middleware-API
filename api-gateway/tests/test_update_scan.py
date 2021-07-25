@@ -25,17 +25,3 @@ class TestScanController(TestCase):
             result.get("message"), "[1624893391046098] state updated successfully"
         )
         self.assertEqual(code, 200)
-
-    def test_delete_scan(self) -> None:
-        response: TestResponse = self.app.delete(
-            "/scans/1624893376207075",
-            headers=dict(Authorization=f"Bearer {get_id_token(self.uid)}"),
-        )
-        result: Dict[str, Any] = response.json
-        code: int = response.status_code
-        self.assertIsInstance(result, dict)
-        self.assertIsInstance(result.get("message"), str)
-        self.assertEqual(
-            result.get("message"), "scan [1624893376207075] deleted successfully"
-        )
-        self.assertEqual(code, 200)
