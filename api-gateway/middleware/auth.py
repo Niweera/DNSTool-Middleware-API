@@ -11,18 +11,21 @@ firebase_auth: FirebaseAuth = FirebaseAuth()
 def authenticate(func: Callable[..., ResourceType]):
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Dict[str, str]) -> Union[ResourceType, Response]:
-        token: str = request.headers.get("Authorization")
-        if token:
-            uid: Optional[Dict[str, str], None] = firebase_auth.check_id_token(
-                token.split("Bearer ")[1]
-            )
-            if bool(uid):
-                return func(*args, uid, **kwargs)
-            else:
-                return send_error(
-                    "Invalid Firebase authentication token", "Unauthorized", 401
+        try:
+            token: str = request.headers.get("Authorization")
+            if token:
+                uid: Optional[Dict[str, str], None] = firebase_auth.check_id_token(
+                    token.split("Bearer ")[1]
                 )
-        else:
-            return send_error("No JWT provided", "Unauthorized", 401)
+                if bool(uid):
+                    return func(*args, uid, **kwargs)
+                else:
+                    return send_error(
+                        "Invalid Firebase authentication token", "Unauthorized", 401
+                    )
+            else:
+                return send_error("No JWT provided", "Unauthorized", 401)
+        except Exception as e:
+            return send_error(str(e), "Unauthorized", 401)
 
     return wrapper
