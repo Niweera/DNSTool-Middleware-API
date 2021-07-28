@@ -11,9 +11,7 @@ class AuthService:
     def generate_rsa_key_pair() -> Tuple[bytes, bytes]:
         try:
             key: RsaKey = RSA.generate(2048)
-            private_key: bytes = key.export_key(
-                pkcs=8, protection="scryptAndAES128-CBC"
-            )
+            private_key: bytes = key.export_key()
             public_key: bytes = key.publickey().export_key()
             return private_key, public_key
         except Exception as e:

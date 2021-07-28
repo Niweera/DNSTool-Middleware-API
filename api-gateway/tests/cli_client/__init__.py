@@ -2,7 +2,8 @@ from CLI import CLI
 
 
 def main():
-    CLI()
+    cli: CLI = CLI()
+    cli.send_mock_download_request()
 
 
 if __name__ == "__main__":
