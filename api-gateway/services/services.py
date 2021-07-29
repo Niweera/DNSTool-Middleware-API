@@ -188,3 +188,12 @@ class Service:
         except Exception as e:
             write_log("error", e)
             raise InternalServerError
+
+    def download(
+        self, uid: str, claims: Dict[str, str]
+    ) -> Union[ResourceType, Response]:
+        try:
+            return dict(uid=uid, claims=claims), 200
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError

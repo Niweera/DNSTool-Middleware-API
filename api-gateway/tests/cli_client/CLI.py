@@ -3,9 +3,17 @@ from datetime import datetime, timedelta
 from os.path import abspath, join, dirname, realpath
 from typing import Dict, List, Union, Any
 import jwt
+import requests
+from flask import Response
 from flask.testing import FlaskClient
 from server import app
 from werkzeug.test import TestResponse
+from firebase_admin import credentials, auth
+from os import getenv
+import firebase_admin
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class CLI:
@@ -42,10 +50,33 @@ class CLI:
             algorithm="RS256",
         )
 
+    def _firebase_token(self) -> str:
+        cred: Any = credentials.Certificate(
+            abspath(
+                join(
+                    dirname(dirname(dirname(realpath(__file__)))),
+                    "config",
+                    getenv("FIREBASE_JSON"),
+                )
+            )
+        )
+        firebase_admin.initialize_app(cred, name="CLI_APP")
+        custom_token: str = auth.create_custom_token(
+            self.client_id, developer_claims=dict(scan_id=self.scan_id)
+        ).decode("utf-8")
+        res: Response = requests.post(
+            f"https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key={getenv('FIREBASE_API_KEY')}",
+            data=dict(token=custom_token, returnSecureToken=True),
+        )
+        return res.json().get("idToken")
+
     def send_mock_download_request(self):
         response: TestResponse = self.app.get(
             "/download",
-            headers=dict(Authorization=f"Bearer {self._create_jwt_token()}"),
+            headers=dict(
+                Authorization=f"Bearer {self._create_jwt_token()}",
+                Firebase_Token=f"Bearer {self._firebase_token()}",
+            ),
         )
         result: Dict[str, Any] = response.json
         code: int = response.status_code
