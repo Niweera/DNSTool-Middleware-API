@@ -79,7 +79,15 @@ class ServiceAccountController(Resource):
         return service.get_service_account(uid, **kwargs)
 
 
-class DownloadController(Resource):
+class DownloadListController(Resource):
     @authenticate_service_account
     def get(self, uid: str, claims: Dict[str, str]) -> ResourceType:
-        return service.download(uid, claims)
+        return service.list_downloads(uid, claims)
+
+
+class DownloadController(Resource):
+    @authenticate_service_account
+    def get(
+        self, uid: str, claims: Dict[str, str], **kwargs: Dict[str, str]
+    ) -> ResourceType:
+        return service.download(uid, claims, **kwargs)

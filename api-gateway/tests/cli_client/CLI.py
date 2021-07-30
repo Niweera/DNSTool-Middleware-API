@@ -15,6 +15,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+cred: Any = credentials.Certificate(
+    abspath(
+        join(
+            dirname(dirname(dirname(realpath(__file__)))),
+            "config",
+            getenv("FIREBASE_JSON"),
+        )
+    )
+)
+firebase_admin.initialize_app(cred, name="CLI_APP")
+
 
 class CLI:
     def __init__(self):
@@ -51,16 +62,6 @@ class CLI:
         )
 
     def _firebase_token(self) -> str:
-        cred: Any = credentials.Certificate(
-            abspath(
-                join(
-                    dirname(dirname(dirname(realpath(__file__)))),
-                    "config",
-                    getenv("FIREBASE_JSON"),
-                )
-            )
-        )
-        firebase_admin.initialize_app(cred, name="CLI_APP")
         custom_token: str = auth.create_custom_token(
             self.client_id, developer_claims=dict(scan_id=self.scan_id)
         ).decode("utf-8")
