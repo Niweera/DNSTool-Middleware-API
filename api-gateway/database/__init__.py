@@ -54,7 +54,7 @@ class FirebaseDB:
         try:
             zones: List[str] = list(set(request_body.get("zones")))
             regions: List[str] = list(set(request_body.get("regions")))
-            input_scanning_combinations: List[Tuple[Any]] = list(
+            input_scanning_combinations: List[Tuple[str, str]] = list(
                 itertools.product(zones, regions)
             )
             scans: object = self.get_scan_records(uid)
