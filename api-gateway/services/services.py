@@ -232,7 +232,8 @@ class Service:
                 stream_with_context(self.storer.download_file(path)),
                 mimetype=self.storer.get_download_file_mime_type(path),
                 headers={
-                    "Content-Disposition": f"attachment; filename={replaced_path}"
+                    "Content-Disposition": f"attachment; filename={replaced_path}",
+                    "Access-Control-Expose-Headers": "Content-Disposition",
                 },
             )
         except Exception as e:

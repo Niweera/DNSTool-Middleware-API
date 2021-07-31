@@ -35,11 +35,13 @@ def authenticate_service_account(func: Callable[..., ResourceType]):
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Dict[str, str]) -> Union[ResourceType, Response]:
         try:
-            firebase_token_header: str = request.headers.get("Firebase_Token")
+            user_id: str = request.args.get("client_id")
+            scan_id: str = request.args.get("scan_id")
             authorization_header: str = request.headers.get("Authorization")
-            if firebase_token_header and authorization_header:
+            if user_id and scan_id and authorization_header:
                 uid, claims = firebase_auth.validate_jwt(
-                    firebase_token_header,
+                    user_id,
+                    scan_id,
                     authorization_header,
                 )
                 if bool(uid) and bool(claims):

@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Download Scan Results</title>
+</head>
+<body onload="myFunction()">
+
+<h2>Scan Results</h2>
+
+<ol id="scanResults"></ol>
+
+<script>
+    let clientID = "UchQlgJb9ibBoV991fqtQ5ykfHz2";
+    let scanID = "1625850846648708";
+    const token = ""
+
+
+    async function myFunction() {
+        const response = await fetch(`http://localhost:8878/list-downloads?client_id=${clientID}&scan_id=${scanID}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "text/json",
+                Authorization: "Bearer " + token,
+            },
+        });
+        /**
+         * @param res.file_paths
+         * @type {any}
+         */
+        const res = await response.json();
+        const filePaths = res?.file_paths;
+        document.getElementById("scanResults").innerHTML = "";
+        filePaths.forEach((filePath) => {
+            let liElement = document.createElement("LI");
+            let btn = document.createElement("button");
+            btn.innerHTML = filePath;
+            let id = filePath.replace(/[\/.]/g, "")
+            btn.id = id;
+            btn.onclick = () => download(id, filePath);
+            liElement.appendChild(btn);
+            document.getElementById("scanResults").appendChild(liElement);
+        });
+    }
+
+    async function download(id, filePath) {
+        document.querySelector(`#${id}`).innerText = 'Downloading file';
+        const response = await fetch(`http://localhost:8878/download/${filePath}?client_id=${clientID}&scan_id=${scanID}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+        });
+        const header = response.headers.get('Content-Disposition');
+        const fileNameSplit = header.split(/attachment;\sfilename=/).filter(Boolean)
+        const fileName = fileNameSplit.length === 1 ? fileNameSplit[0] : "file.txt"
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.querySelector(`#${id}`).innerText = filePath;
+    }
+</script>
+</body>
+</html>

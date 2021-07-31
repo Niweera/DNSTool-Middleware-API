@@ -76,10 +76,12 @@ class CLI:
             "/download",
             headers=dict(
                 Authorization=f"Bearer {self._create_jwt_token()}",
-                Firebase_Token=f"Bearer {self._firebase_token()}",
             ),
         )
         result: Dict[str, Any] = response.json
         code: int = response.status_code
         print(result)
         print(code)
+
+    def get_jwt_token(self):
+        return self._create_jwt_token()

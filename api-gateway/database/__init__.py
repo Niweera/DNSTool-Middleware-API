@@ -220,20 +220,12 @@ class FirebaseAuth:
             raise UnauthorizedError
 
     def validate_jwt(
-        self, firebase_token_header: str, authorization_header: str
+        self, user_id: str, scan_id: str, authorization_header: str
     ) -> Tuple[str, Dict[str, str]]:
         try:
-            firebase_token: str = firebase_token_header.split("Bearer ")[1]
             authorization_token: str = authorization_header.split("Bearer ")[1]
-            decoded_firebase_token: Dict[str, str] = auth.verify_id_token(
-                firebase_token
-            )
-
-            if not bool(decoded_firebase_token):
-                raise UnauthorizedError
-
-            uid: str = decoded_firebase_token.get("user_id")
-            scan_id: str = decoded_firebase_token.get("scan_id")
+            uid: str = user_id
+            scan_id: str = scan_id
 
             if not (bool(uid) and bool(scan_id)):
                 raise UnauthorizedError

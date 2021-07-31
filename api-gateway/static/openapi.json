@@ -482,6 +482,123 @@
           }
         }
       }
+    },
+    "/list-downloads": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Get Scans Results Files List"
+        ],
+        "description": "Get the list of all the scan result files",
+        "operationId": "listDownloads",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "client_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The client_id obtained from the service account JSON file"
+          },
+          {
+            "in": "query",
+            "name": "scan_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The scan_id obtained from the service account JSON file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response of the list downloadable result files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetListDownloadsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download/{path}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Download Scans Results File"
+        ],
+        "description": "Download a scans results file",
+        "operationId": "downloadResultsFile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The complete file path of the file to download"
+          },
+          {
+            "in": "query",
+            "name": "client_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The client_id obtained from the service account JSON file"
+          },
+          {
+            "in": "query",
+            "name": "scan_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The scan_id obtained from the service account JSON file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response containing the scans results file",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DownloadScanResultsFileResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -658,6 +775,23 @@
           "message": "Scan has successfully recorded"
         }
       },
+      "GetListDownloadsResponse": {
+        "type": "object",
+        "properties": {
+          "file_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "file_paths": [
+            "us-east1-c/.com/20210729.txt",
+            "us-east1-c/.com/20210730.txt"
+          ]
+        }
+      },
       "GetScansResponse": {
         "type": "object",
         "properties": {
@@ -771,6 +905,11 @@
       },
       "ServiceAccountResponse": {
         "description": "The service account JSON file in byte format",
+        "type": "string",
+        "format": "byte"
+      },
+      "DownloadScanResultsFileResponse": {
+        "description": "The scan results file in byte format",
         "type": "string",
         "format": "byte"
       },
