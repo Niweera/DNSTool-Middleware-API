@@ -2,6 +2,7 @@ import itertools
 from os.path import abspath, join, dirname, realpath
 from typing import Any, Dict, List, Union, Tuple, Optional
 import firebase_admin
+import jwt
 from firebase_admin import credentials, auth, db
 from firebase_admin.auth import UserRecord, EmailAlreadyExistsError
 from firebase_admin.db import Reference
@@ -53,7 +54,7 @@ class FirebaseDB:
         try:
             zones: List[str] = list(set(request_body.get("zones")))
             regions: List[str] = list(set(request_body.get("regions")))
-            input_scanning_combinations: List[Tuple[Any]] = list(
+            input_scanning_combinations: List[Tuple[str, str]] = list(
                 itertools.product(zones, regions)
             )
             scans: object = self.get_scan_records(uid)
@@ -173,6 +174,32 @@ class FirebaseDB:
             write_log("error", e)
             raise InternalServerError
 
+    def get_public_key(self, uid: str, scan_id: str) -> str:
+        try:
+            return str(
+                self.root.child("public_keys")
+                .child(uid)
+                .child(scan_id)
+                .child("public_key")
+                .get()
+            )
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
+    def get_private_key_id(self, uid: str, scan_id: str) -> str:
+        try:
+            return str(
+                self.root.child("public_keys")
+                .child(uid)
+                .child(scan_id)
+                .child("private_key_id")
+                .get()
+            )
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
 
 class FirebaseAuth:
     def __init__(self) -> None:
@@ -186,6 +213,52 @@ class FirebaseAuth:
                 return decoded_token.get("user_id")
             else:
                 raise UnauthorizedError
+        except UnauthorizedError:
+            raise UnauthorizedError
+        except Exception as e:
+            write_log("error", e)
+            raise UnauthorizedError
+
+    def validate_jwt(
+        self, user_id: str, scan_id: str, authorization_header: str
+    ) -> Tuple[str, Dict[str, str]]:
+        try:
+            authorization_token: str = authorization_header.split("Bearer ")[1]
+            uid: str = user_id
+            scan_id: str = scan_id
+
+            if not (bool(uid) and bool(scan_id)):
+                raise UnauthorizedError
+
+            public_key: str = self.firebase_db.get_public_key(uid, scan_id)
+
+            if not bool(public_key):
+                raise UnauthorizedError
+
+            decoded_authorization_claims: Dict[str, str] = jwt.decode(
+                authorization_token,
+                public_key.encode(),
+                algorithms=["RS256"],
+                options={"require": ["sid", "sub", "iat", "iss", "pid", "exp"]},
+            )
+
+            private_key_id_from_claims: str = decoded_authorization_claims.get("pid")
+            scan_id_from_claims: str = decoded_authorization_claims.get("sid")
+            uid_from_claims: str = decoded_authorization_claims.get("sub")
+            recorded_private_key_id: str = self.firebase_db.get_private_key_id(
+                uid, scan_id
+            )
+
+            if private_key_id_from_claims != recorded_private_key_id:
+                raise UnauthorizedError
+
+            if scan_id_from_claims != scan_id:
+                raise UnauthorizedError
+
+            if uid_from_claims != uid:
+                raise UnauthorizedError
+
+            return uid, decoded_authorization_claims
         except UnauthorizedError:
             raise UnauthorizedError
         except Exception as e:

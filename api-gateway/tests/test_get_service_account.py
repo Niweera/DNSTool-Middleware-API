@@ -21,3 +21,6 @@ class TestServiceAccountController(TestCase):
         code: int = response.status_code
         self.assertIsInstance(result, bytes)
         self.assertEqual(code, 200)
+
+    def test_get_id_token(self) -> None:
+        print(get_id_token(self.uid))

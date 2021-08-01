@@ -1,7 +1,7 @@
 from collections import Callable
 from typing import List, Dict, Any
 from config.CustomTypes import ResourceType
-from middleware.auth import authenticate
+from middleware.auth import authenticate, authenticate_service_account
 from middleware.google_recaptcha import google_recaptcha
 from middleware.validator import validator
 from services import Service
@@ -77,3 +77,17 @@ class ServiceAccountController(Resource):
     @authenticate
     def get(self, uid: str, **kwargs: Dict[str, str]) -> ResourceType:
         return service.get_service_account(uid, **kwargs)
+
+
+class DownloadListController(Resource):
+    @authenticate_service_account
+    def get(self, uid: str, claims: Dict[str, str]) -> ResourceType:
+        return service.list_downloads(uid, claims)
+
+
+class DownloadController(Resource):
+    @authenticate_service_account
+    def get(
+        self, uid: str, claims: Dict[str, str], **kwargs: Dict[str, str]
+    ) -> ResourceType:
+        return service.download(uid, claims, **kwargs)

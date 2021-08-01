@@ -74,3 +74,5 @@ Example: (The private key mentioned here is for reference purposes only)
   ]
 }
 ```
+
+The service account file `/tests/cli-client/service_account_1625850846648708.json` is for reference purposes only.
