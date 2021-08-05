@@ -1,3 +1,5 @@
+import json
+from os.path import abspath, join, dirname, realpath
 from typing import Union
 from unittest import TestCase
 from server import app
@@ -18,6 +20,14 @@ class TestServiceAccountController(TestCase):
             headers=dict(Authorization=f"Bearer {get_id_token(self.uid)}"),
         )
         result: Union[bytes, str] = response.data
+        file_name_header = response.headers["Content-Disposition"]
+        file_name = file_name_header.split("=")[1]
+        service_account = json.loads(result.decode("utf-8"))
+        service_account_path = abspath(
+            join(dirname(realpath(__file__)), "cli_client", file_name)
+        )
+        with open(service_account_path, "w") as json_file:
+            json.dump(service_account, json_file, indent=2)
         code: int = response.status_code
         self.assertIsInstance(result, bytes)
         self.assertEqual(code, 200)

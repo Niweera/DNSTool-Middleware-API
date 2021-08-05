@@ -200,6 +200,17 @@ class FirebaseDB:
             write_log("error", e)
             raise InternalServerError
 
+    def is_scan_active(self, uid: str, id: str) -> bool:
+        try:
+            scan: object = (
+                self.root.child("users").child(uid).child("scans").child(id).get()
+            )
+            state: str = scan["state"]
+            return state == "active"
+        except Exception as e:
+            write_log("error", e)
+            raise InternalServerError
+
 
 class FirebaseAuth:
     def __init__(self) -> None:
@@ -256,6 +267,9 @@ class FirebaseAuth:
                 raise UnauthorizedError
 
             if uid_from_claims != uid:
+                raise UnauthorizedError
+
+            if not self.firebase_db.is_scan_active(uid, scan_id):
                 raise UnauthorizedError
 
             return uid, decoded_authorization_claims
