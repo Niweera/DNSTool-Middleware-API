@@ -8,6 +8,7 @@ cffi==1.14.5
 chardet==4.0.0
 click==8.0.1
 colorama==0.4.4
+cryptography==3.4.7
 firebase-admin==5.0.0
 Flask==2.0.1
 Flask-Caching==1.10.1
@@ -46,6 +47,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
 pycryptodome==3.10.1
+PyJWT==2.1.0
 pyparsing==2.4.7
 python-dateutil==2.8.1
 python-dotenv==0.17.1
@@ -58,4 +60,3 @@ uritemplate==3.0.1
 urllib3==1.26.5
 Werkzeug==2.0.1
 zipp==3.4.1
-PyJWT~=2.1.0
