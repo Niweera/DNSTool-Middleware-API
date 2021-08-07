@@ -1,9 +1,9 @@
-from CLI import CLI
+from tests.cli_client.CLI import CLI
 
 
 def main():
     cli: CLI = CLI()
-    print(cli.get_jwt_token())
+    cli.mock_run()
 
 
 if __name__ == "__main__":

@@ -85,3 +85,26 @@ class CLI:
 
     def get_jwt_token(self):
         return self._create_jwt_token()
+
+    def mock_run(self):
+        response: TestResponse = self.app.get(
+            "/list-downloads",
+            headers=dict(Authorization=f"Bearer {self.get_jwt_token()}"),
+            query_string=dict(client_id=self.client_id, scan_id=self.scan_id),
+        )
+        result: Dict[str, List[str]] = response.json
+        file_paths: List[str] = result.get("file_paths")
+        for file_path in file_paths:
+            response: TestResponse = self.app.get(
+                "/download/" + file_path,
+                headers=dict(Authorization=f"Bearer {self.get_jwt_token()}"),
+                query_string=dict(client_id=self.client_id, scan_id=self.scan_id),
+            )
+            result: Union[bytes, str] = response.data
+            file_name_header: str = response.headers["Content-Disposition"]
+            file_name: str = file_name_header.split("=")[1]
+            file_save_path = abspath(
+                join(dirname(realpath(__file__)), "static", file_name)
+            )
+            with open(file_save_path, "wb") as file:
+                file.write(result)
