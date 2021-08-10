@@ -155,7 +155,7 @@ class Service:
                 List[Tuple[Any, ...]]
             ] = self.firebase_db.get_current_scanning_combinations(id, uid)
             if not current_scans:
-                send_error(
+                return send_error(
                     "Scan is deleted or suspended by the user",
                     "Scan is deleted or suspended",
                     404,
