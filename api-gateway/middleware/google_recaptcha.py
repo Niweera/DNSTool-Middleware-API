@@ -32,7 +32,7 @@ def google_recaptcha(func: Callable[..., ResourceType]):
             else:
                 return send_error(
                     "reCAPTCHA score is lower",
-                    "Google reCAPTCHA v3 token is missing",
+                    "Google reCAPTCHA validation failed!",
                     400,
                 )
         else:
