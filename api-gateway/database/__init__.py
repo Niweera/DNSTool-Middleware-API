@@ -305,6 +305,22 @@ class FirebaseAuth:
             raise UnauthorizedError
 
     @staticmethod
+    def get_verification_link(
+        email: str,
+    ) -> str:
+        try:
+            link: str = auth.generate_email_verification_link(
+                email,
+                auth.ActionCodeSettings(
+                    url=Config.DNSTOOL_CLIENT_URL,
+                ),
+            )
+            return link
+        except Exception as e:
+            write_log("error", e)
+            raise UnauthorizedError
+
+    @staticmethod
     def test_get_uid(email: str) -> str:
         try:
             return auth.get_user_by_email(email).uid

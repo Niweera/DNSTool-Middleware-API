@@ -63,7 +63,9 @@ class Service:
             self.firebase_auth.register_user(
                 full_name, email, organization, profession, reason, password
             )
+            verification_link: str = self.firebase_auth.get_verification_link(email)
             MailService.send_welcome_email(email, full_name)
+            MailService.send_verification_email(email, verification_link)
             return dict(message="User account registered successfully"), 200
         except EmailAlreadyExistsError:
             return send_error(
