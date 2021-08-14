@@ -381,9 +381,9 @@ Accept-Charset: utf-8
 }
 ```
 
-| Parameter | Type   | Required? | Description      |
-| --------- | ------ | --------- | ---------------- | ------- |
-| state     | string | required  | Enum of (suspend | active) |
+| Parameter | Type   | Required? | Description                |
+| --------- | ------ | --------- | -------------------------- |
+| state     | string | required  | Enum of (suspend / active) |
 
 The response is a success message.
 
